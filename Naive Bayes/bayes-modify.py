@@ -11,12 +11,6 @@ Parameters:
 	dataSet - 整理的样本数据集
 Returns:
 	vocabSet - 返回不重复的词条列表，也就是词汇表
-Author:
-	Jack Cui
-Blog:
-	http://blog.csdn.net/c406495762
-Modify:
-	2017-08-11
 """
 def createVocabList(dataSet):
     vocabSet = set([])  					#创建一个空的不重复列表
@@ -32,12 +26,6 @@ Parameters:
 	inputSet - 切分的词条列表
 Returns:
 	returnVec - 文档向量,词集模型
-Author:
-	Jack Cui
-Blog:
-	http://blog.csdn.net/c406495762
-Modify:
-	2017-08-11
 """
 def setOfWords2Vec(vocabList, inputSet):
     returnVec = [0] * len(vocabList)									#创建一个其中所含元素都为0的向量
@@ -56,12 +44,6 @@ Parameters:
 	inputSet - 切分的词条列表
 Returns:
 	returnVec - 文档向量,词袋模型
-Author:
-	Jack Cui
-Blog:
-	http://blog.csdn.net/c406495762
-Modify:
-	2017-08-14
 """
 def bagOfWords2VecMN(vocabList, inputSet):
     returnVec = [0]*len(vocabList)										#创建一个其中所含元素都为0的向量
@@ -80,28 +62,20 @@ Returns:
 	p0Vect - 非侮辱类的条件概率数组
 	p1Vect - 侮辱类的条件概率数组
 	pAbusive - 文档属于侮辱类的概率
-Author:
-	Jack Cui
-Blog:
-	http://blog.csdn.net/c406495762
-Modify:
-	2017-08-12
 """
 def trainNB0(trainMatrix,trainCategory):
     numTrainDocs = len(trainMatrix)							#计算训练的文档数目
     numWords = len(trainMatrix[0])							#计算每篇文档的词条数
     pAbusive = sum(trainCategory)/float(numTrainDocs)		#文档属于侮辱类的概率
-    p0Num = np.ones(numWords); p1Num = np.ones(numWords)	#创建numpy.ones数组,词条出现数初始化为1，拉普拉斯平滑
-    p0Denom = 2.0; p1Denom = 2.0                        	#分母初始化为2,拉普拉斯平滑
+    p0Num = np.ones(numWords); p1Num = np.ones(numWords)	#创建numpy.ones数组,词条出现数初始化为1，拉普拉斯平滑,下面要取对数
+    #p0Denom = 2.0; p1Denom = 2.0                        	#分母初始化为2,拉普拉斯平滑
     for i in range(numTrainDocs):
         if trainCategory[i] == 1:							#统计属于侮辱类的条件概率所需的数据，即P(w0|1),P(w1|1),P(w2|1)···
             p1Num += trainMatrix[i]
-            p1Denom += sum(trainMatrix[i])
         else:												#统计属于非侮辱类的条件概率所需的数据，即P(w0|0),P(w1|0),P(w2|0)···
             p0Num += trainMatrix[i]
-            p0Denom += sum(trainMatrix[i])
-    p1Vect = np.log(p1Num/p1Denom)							#取对数，防止下溢出          
-    p0Vect = np.log(p0Num/p0Denom)          
+    p1Vect = np.log(p1Num / sum(p1Num))  # 取对数，防止下溢出
+    p0Vect = np.log(p0Num / sum(p0Num))
     return p0Vect,p1Vect,pAbusive							#返回属于侮辱类的条件概率数组，属于非侮辱类的条件概率数组，文档属于侮辱类的概率
 
 """
@@ -115,15 +89,9 @@ Parameters:
 Returns:
 	0 - 属于非侮辱类
 	1 - 属于侮辱类
-Author:
-	Jack Cui
-Blog:
-	http://blog.csdn.net/c406495762
-Modify:
-	2017-08-12
 """
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
-    p1 = sum(vec2Classify * p1Vec) + np.log(pClass1)    	#对应元素相乘。logA * B = logA + logB，所以这里加上log(pClass1)
+    p1 = sum(vec2Classify * p1Vec) + np.log(pClass1)    	#对应元素相乘。logA * B = logA + logB，所以这里加上log(pClass1),计算p(x|y)*p(y),分母p(x)不用算
     p0 = sum(vec2Classify * p0Vec) + np.log(1.0 - pClass1)
     if p1 > p0:
         return 1
@@ -132,17 +100,6 @@ def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
 
 """
 函数说明:接收一个大字符串并将其解析为字符串列表
-
-Parameters:
-    无
-Returns:
-    无
-Author:
-    Jack Cui
-Blog:
-    http://blog.csdn.net/c406495762
-Modify:
-    2017-08-14
 """
 def textParse(bigString):                                                   #将字符串转换为字符列表
     # * 会匹配0个或多个规则，split会将字符串分割成单个字符【python3.5+】; 这里使用\W 或者\W+ 都可以将字符数字串分割开，产生的空字符将会在后面的列表推导式中过滤掉
@@ -151,17 +108,6 @@ def textParse(bigString):                                                   #将
 
 """
 函数说明:测试朴素贝叶斯分类器
-
-Parameters:
-    无
-Returns:
-    无
-Author:
-    Jack Cui
-Blog:
-    http://blog.csdn.net/c406495762
-Modify:
-    2017-08-14
 """
 def spamTest():
     docList = []; classList = []; fullText = []
